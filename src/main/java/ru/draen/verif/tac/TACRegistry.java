@@ -124,7 +124,7 @@ public class TACRegistry {
         int arg2Max = maxLength(arg2Column);
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < records.size(); i++) {
+        for (int i = 0; i < records.size() + 1; i++) {
             sb
                     .append(String.format("%-" + labelMax + "s\t", labelColumn.get(i)))
                     .append(String.format("%-" + resMax + "s\t", resColumn.get(i)))
