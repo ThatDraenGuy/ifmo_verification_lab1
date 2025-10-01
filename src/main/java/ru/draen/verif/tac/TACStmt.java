@@ -7,7 +7,9 @@ public sealed interface TACStmt {
         }
     }
     record IfFalse(TACValue condition, TACLabel label) implements TACStmt {}
+    record IfTrue(TACValue condition, TACLabel label) implements TACStmt {}
     record GoTo(TACLabel label) implements TACStmt {}
     record BeginFunc() implements TACStmt {}
     record EndFunc() implements TACStmt {}
+    record CallFunc(String name) implements TACStmt {}
 }

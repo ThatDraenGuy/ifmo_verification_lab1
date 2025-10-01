@@ -24,7 +24,8 @@ public enum TACOperation {
     MINUS("-"),
     MULTIPLY("*"),
     DIVIDE("/"),
-    REMAINDER("%");
+    REMAINDER("%"),
+    NEG("!");
 
     private final String codeRepresentation;
 

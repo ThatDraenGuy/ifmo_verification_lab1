@@ -1,45 +1,48 @@
 package ru.draen.verif;
 
 import com.github.javaparser.StaticJavaParser;
-import ru.draen.verif.tac.TACContext;
+import com.github.javaparser.ast.CompilationUnit;
+import ru.draen.verif.tac.ScopeContext;
 import ru.draen.verif.tac.TACRegistry;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
-        var res = StaticJavaParser.parse("""
-                class A {
-                    public static void test() {
-                        int i = 3;
-                        int b = (3 - i * 7) / 5;
-                    }
-                    public static void main() {
-                        a += b++;
-                        a = ++b;
-                        a = 1;
-                        b = 2;
-                        c = a + b;
-                        a -= b;
-                        c -= (a + b) * 2;
-                        if (c < 0) {
-                            c += 1;
-                        } else {
-                            c -= 1;
-                        }
-                        test:
-                        while (a > 0) {
-                            for (int i = 0; i < 15; i++) {
-                                if (b) {
-                                    break test;
-                                }
-                            }
-                            a++;
-                        }
-                    }
-                }
-                """);
+    public static void main(String[] args) throws IOException {
+        if (args.length > 0) {
+            String file = args[0];
+            TACRegistry result = process(new File(file));
+            System.out.println(result);
+            System.out.println("===========================");
+            System.out.println(result.toTabledString());
+            return;
+        }
+
+        File outDir = new File("target/tac");
+        outDir.mkdirs();
+        for (File javaFile : new File(Main.class.getResource("/files").getFile()).listFiles()) {
+            TACRegistry result = process(javaFile);
+            System.out.println("FILE " + javaFile.getName() + ":\n");
+            System.out.println(result);
+            File out = new File("target/tac/" + javaFile.getName());
+            try (FileWriter writer = new FileWriter(out, false)) {
+                writer.write(result.toString());
+            }
+            File outTable = new File("target/tac/" + javaFile.getName() + "_table");
+            try (FileWriter writer = new FileWriter(outTable, false)) {
+                writer.write(result.toTabledString());
+            }
+        }
+    }
+
+    private static TACRegistry process(File file) throws FileNotFoundException {
+        CompilationUnit ast = StaticJavaParser.parse(file);
         TACRegistry tacRegistry = new TACRegistry();
-        TACContext context = new TACContext();
-        res.accept(new TACVisitor(tacRegistry   ), context);
-        System.out.println(tacRegistry);
+        ScopeContext context = new ScopeContext();
+        ast.accept(new TACVisitor(tacRegistry), context);
+        return tacRegistry;
     }
 }
